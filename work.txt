@@ -1,0 +1,29 @@
+Main Functionalities :
+1.View Products with pagination
+  search Products,Product Details page
+2.Rgister
+3.Login(Based on user role)
+4.Add to cart
+5.Wishlist
+6.Checkout
+7.Payment
+8.Order History
+9.Admin panal :
+  *Add Product
+  *Delete Product
+  *Manage Users
+  *Manage Orders
+
+
+Users :
+1.Users
+2.Buyer
+3.Admin
+
+
+Models :
+1.Products
+2.Users
+3.Cart
+4.Orders
+5.Wishlist
