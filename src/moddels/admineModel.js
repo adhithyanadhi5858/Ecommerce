@@ -1,13 +1,13 @@
 const mongoose = require("mongoose")
 
-const UserSchema = new mongoose.Schema({
+const AdmineSchema = new mongoose.Schema({
      name : {type:String,required:true},
      email : {type:String , unique:true , required:true},
      password : {type:String,required:true,minLen:8},
-     role : {type:String , default:'User'}
+     role : {type:String , default:'admine'}
 
   });
 
-  const UserModel = mongoose.model('User', UserSchema);
+  const AdmineModel = mongoose.model('Admine',AdmineSchema );
 
-  module.exports = UserModel
+  module.exports = AdmineModel
