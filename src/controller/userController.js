@@ -19,7 +19,8 @@ const RegisterController = async (req,res)=>{
             const newUser = await UserModel.create(userData)
            const regToken = tokenGenarate(newUser._id)
            res.cookie("token",regToken)
-            res.json({message:"User SignUp Successfully completed"})
+           delete newUser._doc.password
+            res.json({newUser,message:"User SignUp Successfully completed"})
         }else{
             res.status(404).json({message:"Something Went Wrong"})
         }
@@ -40,7 +41,12 @@ const LoginController= async(req,res)=>{
     try{
         bcrypt.compare(req.body.password,user.password, function(err, result) {
             if(result){
-             res.json({message:"User Logged in successfully completed"})
+                const token = tokenGenarate(user._id)
+                res.cookie("token",token)
+                 delete user._doc.password
+
+             res.json({user,message:"User Logged in successfully completed"})
+            
             }else{
                 res.json({message:"Password Not Match"})
             }

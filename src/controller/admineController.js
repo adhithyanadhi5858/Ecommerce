@@ -31,7 +31,7 @@ const admineLoginController= async(req,res)=>{
     const userData = req.user
     const user =  await AdmineModel.findOne({email:userData.email})
      
-    console.log(user)
+    
     if(!user){
         return res.json(400).json({message:"User Does Not Exist"})
     }
@@ -52,4 +52,13 @@ const admineLoginController= async(req,res)=>{
 
 }
 
-module.exports = {admineLoginController,admineRegController}
+const admineLogoutController = (req,res)=>{
+    try {
+        res.clearCookie("token")
+        res.json({message:"Admine Logout Successfully"})
+    } catch (error) {
+        res.json({message:"Something Went Wrong"})
+    }
+}
+
+module.exports = {admineLoginController,admineRegController,admineLogoutController}

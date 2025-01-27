@@ -1,18 +1,19 @@
 const mongoose = require("mongoose")
 const express = require("express")
-const router = express.Router()
-const {getAllProducts,createProducts,getProductById, addToCart,getAllCartItems} = require("../controller/ProductController")
-const { authMiddleWare } = require("../middleware/authenticationMiddleware")
+const multer  = require('multer')
 const { admineOnly } = require("../middleware/admineOnlyMiddleware")
+const { upload } = require("../middleware/multer")
+const router = express.Router()
+const {getAllProducts,createProducts,deleteProducts,updateProducts} = require("../controller/ProductController")
+
+
 
 router.get("/all-products",getAllProducts)
 
-router.post("/create-products",authMiddleWare ,admineOnly ,createProducts)
+router.post("/create-products",admineOnly,upload.single("image") ,createProducts)
 
-router.post("/add-to-cart",authMiddleWare,addToCart)
+router.delete("/delete/:id",admineOnly,deleteProducts)
 
-router.get("/cart-items",authMiddleWare,getAllCartItems)
-
-router.get("/:Id",getProductById)
+router.put("/update/:id",admineOnly,upload.single("image"),updateProducts)
 
 module.exports = router

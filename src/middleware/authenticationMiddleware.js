@@ -11,10 +11,7 @@ const authMiddleWare = async (req,res,next)=>{
             
             var decoded = jwt.verify(token,encryptKey)
             const User = await UserModel.findOne({id:decoded._id})
-            req.user = User
-
-            console.log(req.user)
-           
+            req.user = User           
             next()
         }catch(error){
             console.log(error)

@@ -1,6 +1,6 @@
 
 const ProductModel = require("../moddels/ProductModel")
-const CartModel    = require("../moddels/cartModel")
+
 
 const getAllProducts = async(req,res)=>{
    const limit=10
@@ -14,11 +14,33 @@ const getAllProducts = async(req,res)=>{
     res.json({allProducts})
 }
 
-const createProducts = async(req,res)=>{
-    const newProduct = await ProductModel.create(req.body)
 
-    res.json({newProduct})
+const createProducts = async(req,res)=>{
+
+    const productsDeatils = req.body
+
+    try{
+
+        if(!productsDeatils){
+            return res.json({message:"Please Enter The Values"})
+        }
+
+        if(req.file){
+            cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path)
+        }
+
+        productsDeatils.image = cloudinaryResponse
+
+        const newProduct = await ProductModel.create(productsDeatils)
+        res.json({newProduct})
+        
+      
+    }catch(error){
+         res.json({message:error.message || "something Went Wrong"})
+    }
+   
 }
+
 
 const getProductById = async (req,res)=>{
     const Id= req.params.Id
@@ -30,34 +52,56 @@ const getProductById = async (req,res)=>{
             res.json({message:"Product Not Found"})
         }
          
-    }catch{
-        res.json({message:"Products Not Found"})
+    }catch(error){
+        res.json({message:error.message})
 
     }
     
 }
 
-const addToCart = async (req,res)=>{
-    const userId = req.user._id
-    console.log(userId)
-    const productId = req.body.productId
-    const cartItem = await CartModel.create({
-        productId :productId,
-        userId:userId
-    })
 
-    const cartItemPopulated = await CartModel.findById(cartItem).populate("productId").populate("userId")
 
-    res.json(cartItemPopulated)
+const updateProducts = async (req,res)=>{
+   
+    try{
 
+        const productId = req.params.id
+
+        let product = await ProductModel.findById(productId)
+
+        if(!product){
+            return res.json({message:"Products Not found"})
+        }
+
+        const updates = req.body
+
+        product = await ProductModel.findByIdAndUpdate(productId, updates, { new: true, runValidators: true });
+
+        res.json({message:"Update Product Successfullly",product})
+
+    }catch(error){
+
+        res.json({message:error.message || "somewhting went wrong"})
+
+    }   
 }
 
-const getAllCartItems = async (req,res)=>{
-    const userId =req.user._id
 
-    const cartItem =await CartModel.find({userId:userId}).populate("productId").populate("userId")
 
-    res.json({cartItem})
+const deleteProducts = async(req,res)=>{
+
+    try{
+       const productId = req.params.id
+
+       await ProductModel.findByIdAndDelete(productId)
+
+       res.json({message:"Product Deleted"})
+
+    }catch(error){
+
+        res.json({message:error.message || "Something went wrong"})
+    }
 }
 
-module.exports = {getAllProducts,createProducts,getProductById,addToCart,getAllCartItems}
+
+module.exports = {getAllProducts,createProducts,getProductById,updateProducts,deleteProducts}
