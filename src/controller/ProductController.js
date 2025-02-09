@@ -1,4 +1,5 @@
 
+const cloudinaryInstance = require("../../config/cloudnary")
 const ProductModel = require("../moddels/ProductModel")
 
 
@@ -11,45 +12,47 @@ const getAllProducts = async(req,res)=>{
     const allProducts = await ProductModel.find({title:{$regex: searchVal, $options: 'i'}})
     .skip(skip).limit(limit)
 
-    res.json({allProducts})
+    res.json(allProducts)
 }
 
 
 const createProducts = async(req,res)=>{
 
-    const productsDeatils = req.body
+    const {title,price,description,quantity} = req.body
+
+    console.log("image===",req.file)
 
     try{
 
-        if(!productsDeatils){
-            return res.json({message:"Please Enter The Values"})
-        }
+        if(!title || !description || !price ){
+            return res.status(400),json({message:"all fields are required"})
+        }  
 
-        if(req.file){
-            cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path)
-        }
+            const cloudinaryResponse = cloudinaryInstance.uploader.upload(req.file.path)
 
-        productsDeatils.image = cloudinaryResponse
+            console.log("cldRes====",cloudinaryResponse)    
 
-        const newProduct = await ProductModel.create(productsDeatils)
-        res.json({newProduct})
+        const newProduct = await ProductModel({title,description,price,image:(await cloudinaryResponse).url,quantity})
+        await newProduct.save()
+
+        res.json({message:"Product Created",newProduct})
         
-      
     }catch(error){
          res.json({message:error.message || "something Went Wrong"})
     }
-   
 }
 
 
 const getProductById = async (req,res)=>{
-    const Id= req.params.Id
+
+    const productId= req.params.productId
+
     try{
-        const product = await ProductModel.findById(Id)
+        const product = await ProductModel.findById(productId)
         if(product){
             res.json({product})
         }else{
-            res.json({message:"Product Not Found"})
+            res.json({message:"Product Unavailable"})
         }
          
     }catch(error){
@@ -67,7 +70,7 @@ const updateProducts = async (req,res)=>{
 
         const productId = req.params.id
 
-        let product = await ProductModel.findById(productId)
+        let product = await ProductModel.findOne({_id:productId})
 
         if(!product){
             return res.json({message:"Products Not found"})
@@ -75,7 +78,7 @@ const updateProducts = async (req,res)=>{
 
         const updates = req.body
 
-        product = await ProductModel.findByIdAndUpdate(productId, updates, { new: true, runValidators: true });
+        product = await ProductModel.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
 
         res.json({message:"Update Product Successfullly",product})
 
@@ -91,7 +94,10 @@ const updateProducts = async (req,res)=>{
 const deleteProducts = async(req,res)=>{
 
     try{
-       const productId = req.params.id
+
+        const productId = req.params.id
+        console.log(productId)
+      
 
        await ProductModel.findByIdAndDelete(productId)
 

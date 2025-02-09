@@ -4,27 +4,32 @@ const ProductModel = require("../moddels/ProductModel")
 
 const createOrder = async (req, res) => {
   try {
-    const data = req.body;
 
-    if (!data) {
-      return res.status(400).json({ message: 'No items in the order' });
-    }
+    const {productId,count,isPaid,orderStatus} = req.body
 
-    const order = await OrderModel.create(data)
+    const order = await OrderModel.create({
+
+      userId:req.user._id,
+      productId:productId,
+      isPaid:isPaid,
+      orderStatus:orderStatus,
+      count:count
+
+    })
+    res.json({message:"Order Conformed",order})
    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+
 }
-
-
 
 
 const getOrderById = async (req, res) => {
 
   try {
 
-    const order = await OrderModel.findById(req.params.id).populate('user', 'name email') .populate('orderItems.product', 'name price'); 
+    const order = await OrderModel.findById(req.params.id).populate("userId").populate("productId"); 
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
@@ -70,12 +75,11 @@ const updateOrderStatus = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate(
-      'orderItems.product',
-      'name price'
-    );
+    const userId = req.user._id
+    const orders = await OrderModel.find({ userId:userId  }).populate("userId").populate("productId");
 
-    res.json(orders);
+    res.json({orders});
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -85,10 +89,10 @@ const getUserOrders = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const orders = await OrderModel.find()
-      .populate('user', 'name email')
-      .populate('orderItems.product', 'name price');
+      .populate("userId")
+      .populate('productId');
 
-    res.json(orders);
+    res.json({orders});
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -7,7 +7,6 @@ const addToCart = async (req,res)=>{
     try{
         const userId = req.user._id
         const productId = req.body.productId
-
         
         const cartItem = await CartModel.create({
             productId :productId,
@@ -24,17 +23,27 @@ const addToCart = async (req,res)=>{
 }
 
 const getAllCartItems = async (req,res)=>{
-    const userId =req.user._id
+    
+    const userId = req.user._id
 
     const cartItem =await CartModel.find({userId:userId}).populate("productId").populate("userId")
 
     res.json({cartItem})
 }
 
-const removeCartItems = (req,res)=>{
+const removeCartItems = async (req,res)=>{
+
+   try{
+    const productId = req.body.productId
+
+    const product = await CartModel.findByIdAndDelete(productId)
 
 
-    res.json({message:"Dleted Cart Item"})
+    res.json({message:"Deleted Cart Item"})
+
+   }catch(error){
+      res.status(404).json({message:error.message || "Server Error"})
+   }
 }
 
 module.exports = {getAllCartItems,addToCart,removeCartItems}

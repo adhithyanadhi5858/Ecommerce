@@ -3,10 +3,11 @@ const ProductModel = require("../moddels/ProductModel");
 
 
 const addReview = async (req, res) => {
-  try {
-    const data = req.body;
 
-    const product = await ProductModel.findById(data.productId);
+  try {
+    const {productId , rating , comment }= req.body
+
+    const product = await ProductModel.findById(productId);
 
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
@@ -14,29 +15,28 @@ const addReview = async (req, res) => {
 
    
     const existingReview = await ReviewModel.findOne({
-      user: req.user._id,
-      product: productId,
+      userId: req.user._id,
+      productid: productId,
     });
+
 
     if (existingReview) {
       return res.status(400).json({ message: 'You have already reviewed this product' });
     }
 
-    const review = new ReviewModel.create(data)
 
- 
-    const reviews = await ReviewModel.find({ product: data.productId });
+    const review = await ReviewModel.create({
+      userId: req.user._id,
+      productId: productId,
+      rating:rating,
+      comment:comment
 
-    const averageRating =
-      reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-
-    product.rating = averageRating;
-    product.numReviews = reviews.length;
-
-    await product.save();
+    })
 
     res.status(201).json({ message: 'Review added successfully', review });
+
   } catch (error) {
+
     res.status(500).json({ message: error.message });
   }
 };
@@ -44,16 +44,20 @@ const addReview = async (req, res) => {
 
 
 const getReviewsForProduct = async (req, res) => {
-  try {
-    const { productId } = req.params;
 
-    const reviews = await ReviewModel.find({ product: productId })
-      .populate('user', 'name') // Populate user details
-      .sort({ createdAt: -1 }); // Sort by latest reviews
+  try {
+    const { productId } = req.params.id
+
+    const reviews = await ReviewModel.findOne({
+      userId: req.user._id,
+      productid: productId,
+    });
+    
 
     res.json(reviews);
 
-  } catch (error) {
+  }catch(error) {
+
     res.status(500).json({ message: error.message });
   }
 };

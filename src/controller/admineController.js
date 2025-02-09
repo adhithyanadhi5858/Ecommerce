@@ -28,7 +28,9 @@ const admineRegController = async (req,res)=>{
 }
 
 const admineLoginController= async(req,res)=>{
-    const userData = req.user
+
+    const userData = req.body
+
     const user =  await AdmineModel.findOne({email:userData.email})
      
     
@@ -38,7 +40,11 @@ const admineLoginController= async(req,res)=>{
    
     try{
         bcrypt.compare(req.body.password,user.password, function(err, result) {
+
             if(result){
+            
+             const regToken = tokenGenarate(user._id)
+             res.cookie("token",regToken)
              res.json({message:"Admine Logged in successfully completed"})
              
             }else{
@@ -61,4 +67,17 @@ const admineLogoutController = (req,res)=>{
     }
 }
 
-module.exports = {admineLoginController,admineRegController,admineLogoutController}
+
+const getAdmineProfile = async (req, res) => {
+
+    const admine = req.user;
+    
+    res.status(200).json({
+        id: admine._id,
+        name: admine.name,
+        email: admine.email,
+    });
+};
+
+
+module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile}

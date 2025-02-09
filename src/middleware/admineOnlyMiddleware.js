@@ -1,21 +1,26 @@
 const jwt = require("jsonwebtoken")
-const cookieParsar = require("cookie-parser")
-const AdmineModel = require("../moddels/admineModel")
 const encryptKey = process.env.JWT_SECRET_KEY
 
 const admineOnly = async (req,res,next)=>{
 
     const {token } = req.cookies;
             
-            var decoded = jwt.verify(token,encryptKey)
-            const User = await AdmineModel.findOne({id:decoded._id})
-
-            console.log(User)
-           
-    if(!User.role =='admine'){
-        return res.json({message:"you are not admine"})
+    try {
+        const decoded = jwt.verify(token, encryptKey);
+        if (decoded.role !== 'admine') {
+            return res.status(403).json({ message: 'Not authorized' });
+        }else{
+            
+        }
+            
+        req.user = decoded;
+        next();
+    } catch (error) {
+        res.status(400).json({ message:error.message || 'Invalid token' });
     }
-    req.user = User           
+           
+   
+    req.user = admine          
     next()
 }
 

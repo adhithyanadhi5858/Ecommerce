@@ -12,7 +12,7 @@ router.put('/update/:id', authMiddleWare, admineOnly, updateOrderStatus);
 
 router.get('/user-orders', authMiddleWare, getUserOrders);
 
-router.get('/get-all-orders', authMiddleWare, admineOnly, getAllOrders);
+router.get('/get-all-orders',admineOnly, getAllOrders);
 
 router.get('/get-order/:id', authMiddleWare, getOrderById);
 

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const express = require("express")
 const router = express.Router()
-const {RegisterController,LoginController,LogoutController,getUserProfile,checkRole} = require("../controller/userController")
+const {RegisterController,LoginController,LogoutController,getUserProfile,checkUser, getAllUsers} = require("../controller/userController")
 const { admineOnly } = require("../middleware/admineOnlyMiddleware")
 const { authMiddleWare } = require("../middleware/authenticationMiddleware")
 
@@ -14,7 +14,9 @@ router.get('/logout',LogoutController)
 
 router.get('/profile', authMiddleWare, getUserProfile);
 
-router.get("/check",authMiddleWare,checkRole)
+router.get("/check",authMiddleWare,checkUser)
+
+router.get("/get-all-users",admineOnly,getAllUsers)
 
 
 
