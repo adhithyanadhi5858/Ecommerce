@@ -24,7 +24,7 @@ mongoose.connect(db_link)
 })
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ["https://vibbora.vercel.app/","http://localhost:5173/", 'https://vibbora.vercel.app'],
     methods:["GET","PUT","DELETE","POST","OPTIONS"],
     credentials:true
   }))
