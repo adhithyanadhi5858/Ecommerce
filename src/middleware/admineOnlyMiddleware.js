@@ -1,27 +1,30 @@
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const AdmineModel = require("../moddels/admineModel");
 const encryptKey = process.env.JWT_SECRET_KEY
 
-const admineOnly = async (req,res,next)=>{
+const admineOnly = async (req, res, next) => {
 
-    const {token } = req.cookies;
-            
+    const { token } = req.cookies;
+
+
     try {
-        const decoded = jwt.verify(token, encryptKey);
-        if (decoded.role !== 'admine') {
-            return res.status(403).json({ message: 'Not authorized' });
+
+        const { token } = req.cookies;
+
+        var decoded = jwt.verify(token, encryptKey)
+        const admine = await AdmineModel.findOne({ id: decoded._id })
+        if (admine.role == "admine") {
+            req.user = admine
+            next()
         }else{
-            
+            res.json({message:"Admine Not Authorized"})
         }
-            
-        req.user = decoded;
-        next();
     } catch (error) {
-        res.status(400).json({ message:error.message || 'Invalid token' });
+        console.log(error)
+        res.status(401).json({ message: "Invalid Token" })
+
     }
-           
-   
-    req.user = admine          
-    next()
+
 }
 
-module.exports = {admineOnly}
+module.exports = { admineOnly }

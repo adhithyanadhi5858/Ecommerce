@@ -9,7 +9,7 @@ const { authMiddleWare } = require('../middleware/authenticationMiddleware');
 router.post('/add-review', authMiddleWare, addReview);
 
 
-router.get('/get-review/:id', authMiddleWare,getReviewsForProduct);
+router.get('/get-review/:productId', authMiddleWare,getReviewsForProduct);
 
 
 router.delete('/delete-review/:id', authMiddleWare, deleteReview);

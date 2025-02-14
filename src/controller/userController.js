@@ -35,12 +35,14 @@ const LoginController = async (req, res) => {
 
     const user = await UserModel.findOne({ email: req.body.email })
 
+    console.log(user)
+
     if (!user) {
        return res.status(400).json({ message: "User Does Not Exist" })
     }
 
     try {
-         await bcrypt.compare(req.body.password, user.password, function (err, result) {
+         checkData =  await bcrypt.compare(req.body.password, user.password, function (err, result) {
             if (!result) {
                 return res.status(400).json({ message: "Invalid credentials" });
 
@@ -85,7 +87,7 @@ const checkUser = async (req, res) => {
 
     try{
 
-       res.json({message:"User Autharized"})
+       res.json({user,message:"User Autharized"})
 
     }catch(error){
 

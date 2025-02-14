@@ -2,6 +2,9 @@ const bcrypt = require("bcrypt");
 const AdmineModel = require("../moddels/admineModel");
 const saltRound = Number(process.env.SALT_ROUND)
 const tokenGenarate = require("../../token");
+const UserModel = require("../moddels/UserModel.js");
+const ProductModel = require("../moddels/ProductModel.js");
+const OrderModel = require("../moddels/orderModel.js");
 
 const admineRegController = async (req,res)=>{
 
@@ -80,4 +83,41 @@ const getAdmineProfile = async (req, res) => {
 };
 
 
-module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile}
+
+
+// Admin Dashboard Controller
+const getAdminDashboard = async (req, res) => {
+    try {
+        // Fetch total counts
+        const totalUsers = await UserModel.countDocuments();
+        const totalProducts = await ProductModel.countDocuments();
+        const totalOrders = await OrderModel.countDocuments();
+        
+        // Aggregate order stats (Total Sales, Pending Orders, Delivered Orders)
+        const totalSales = await OrderModel.aggregate([
+            { $match: { status: "Delivered" } }, // Only count delivered orders
+            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+        ]);
+
+        const pendingOrders = await OrderModel.countDocuments({ status: "Pending" });
+        const deliveredOrders = await OrderModel.countDocuments({ status: "Delivered" });
+
+        // Response
+        res.status(200).json({
+            success: true,
+            data: {
+                totalUsers,
+                totalProducts,
+                totalOrders,
+                totalSales: totalSales[0]?.total || 0,
+                pendingOrders,
+                deliveredOrders,
+            },
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
+    }
+};
+
+module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile,getAdminDashboard}

@@ -28,7 +28,7 @@ const getAllCartItems = async (req,res)=>{
 
     const cartItem =await CartModel.find({userId:userId}).populate("productId").populate("userId")
 
-    res.json({cartItem})
+    res.json(cartItem)
 }
 
 const removeCartItems = async (req,res)=>{

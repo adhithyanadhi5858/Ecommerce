@@ -29,8 +29,7 @@ const getWishList = async (req,res)=>{
 
         const WhishList = await  WishlistModel.find({UserId:userId}).populate('UserId').populate('productId')
 
-
-        res.json({WhishList})
+        res.json(WhishList)
 
     }catch(error){
 
