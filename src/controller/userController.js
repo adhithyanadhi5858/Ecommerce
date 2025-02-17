@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const UserModel = require("../moddels/UserModel");
 const tokenGenarate = require("../../token");
 const saltRound = Number(process.env.SALT_ROUND)
+const NODE_ENV = process.env.NODE_ENV;
 
 
 const RegisterController = async (req, res) => {
@@ -20,7 +21,11 @@ const RegisterController = async (req, res) => {
             userData.password = hash
             const newUser = await UserModel.create(userData)
             const regToken = tokenGenarate(newUser._id)
-            res.cookie("token", regToken)
+            res.cookie("token", regToken,{
+                sameSite: NODE_ENV === "production" ? "None" : "Lax",
+                secure: NODE_ENV === "production",
+                httpOnly: NODE_ENV === "production",
+            })
             delete newUser._doc.password
             res.json({ newUser, message: "User SignUp Successfully completed" })
         } else {
@@ -35,7 +40,7 @@ const LoginController = async (req, res) => {
 
     const user = await UserModel.findOne({ email: req.body.email })
 
-    console.log(user)
+    
 
     if (!user) {
        return res.status(400).json({ message: "User Does Not Exist" })
@@ -48,7 +53,11 @@ const LoginController = async (req, res) => {
 
             } else {
                 const token = tokenGenarate(user._id)
-                res.cookie("token", token,)
+                res.cookie("token", token,{
+                    sameSite: NODE_ENV === "production" ? "None" : "Lax",
+                    secure: NODE_ENV === "production",
+                    httpOnly: NODE_ENV === "production",
+                })
                 delete user._doc.password
                 res.json({ user, message: "User Logged in successfully completed" })
             }
@@ -63,7 +72,11 @@ const LoginController = async (req, res) => {
 
 const LogoutController = (req, res) => {
     try {
-        res.clearCookie("token",)
+        res.clearCookie("token",{
+            sameSite: NODE_ENV === "production" ? "None" : "Lax",
+            secure: NODE_ENV === "production",
+            httpOnly: NODE_ENV === "production",
+        })
         res.json({ message: "Logout Successfully" })
     } catch (error) {
         res.json({ message: "Something Went Wrong" })
@@ -78,6 +91,7 @@ const getUserProfile = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        image:user.image
     });
 };
 

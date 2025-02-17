@@ -21,7 +21,11 @@ const admineRegController = async (req,res)=>{
             userData.password=hash
             const newUser = await AdmineModel.create(userData)
            const regToken = tokenGenarate(newUser._id)
-           res.cookie("token",regToken)
+           res.cookie("token",regToken,{
+            sameSite: NODE_ENV === "production" ? "None" : "Lax",
+            secure: NODE_ENV === "production",
+            httpOnly: NODE_ENV === "production",
+        })
             res.json({message:"Admine SignUp Successfully completed"})
         }else{
             res.status(404).json({message:"Something Went Wrong"})
@@ -47,7 +51,11 @@ const admineLoginController= async(req,res)=>{
             if(result){
             
              const regToken = tokenGenarate(user._id)
-             res.cookie("token",regToken)
+             res.cookie("token",regToken,{
+                sameSite: NODE_ENV === "production" ? "None" : "Lax",
+                secure: NODE_ENV === "production",
+                httpOnly: NODE_ENV === "production",
+            })
              res.json({message:"Admine Logged in successfully completed"})
              
             }else{
@@ -63,7 +71,11 @@ const admineLoginController= async(req,res)=>{
 
 const admineLogoutController = (req,res)=>{
     try {
-        res.clearCookie("token")
+        res.clearCookie("token",{
+            sameSite: NODE_ENV === "production" ? "None" : "Lax",
+            secure: NODE_ENV === "production",
+            httpOnly: NODE_ENV === "production",
+        })
         res.json({message:"Admine Logout Successfully"})
     } catch (error) {
         res.json({message:"Something Went Wrong"})

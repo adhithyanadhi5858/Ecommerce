@@ -5,12 +5,10 @@ const ProductModel = require("../moddels/ProductModel");
 const addReview = async (req, res) => {
 
   try {
-    const { productId , comment,rating } = req.body
-    console.log(req.body);
-    
-  
+    const { productId , comment,rating } = req.body   
 
     const product = await ProductModel.findById(productId);
+    console.log(product)
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -20,20 +18,19 @@ const addReview = async (req, res) => {
       productid: productId,
     });
 
-    if (existingReview) {
+    if (!existingReview) {
       return res.status(400).json({ message: 'You have already reviewed this product' });
     }
 
-    const review = new ReviewModel({
+    const review = await ReviewModel.create({
       userId: req.user._id,
       productId: productId,
       rating:rating,
       comment: comment
     })
-    await review.save();
-
 
     console.log(review)
+
     
     if(!review){
       return res,josn({
@@ -60,7 +57,7 @@ const getReviewsForProduct = async (req, res) => {
     const reviews = await ReviewModel.findOne({
       userId: req.user._id,
       productid: productId,
-    });
+    }).populate("user")
 
 
     res.json(reviews);

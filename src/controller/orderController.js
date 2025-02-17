@@ -28,14 +28,13 @@ const createOrder = async (req, res) => {
 const getOrderById = async (req, res) => {
 
   try {
-
-    const order = await OrderModel.findById(req.params.id).populate("userId").populate("productId"); 
+    const order = await OrderModel.findById(req.user._id).populate("userId").populate("productId"); 
 
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: 'Orders not found' });
     }
 
-    res.json(order);
+    res.json({order});
 
   } catch (error) {
     res.status(500).json({ message: error.message });

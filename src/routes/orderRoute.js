@@ -14,6 +14,6 @@ router.get('/user-orders', authMiddleWare, getUserOrders);
 
 router.get('/get-all-orders',admineOnly, getAllOrders);
 
-router.get('/get-order/:id', authMiddleWare, getOrderById);
+router.get('/get-order', authMiddleWare, getOrderById);
 
 module.exports = router;
