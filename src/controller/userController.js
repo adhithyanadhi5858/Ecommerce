@@ -48,7 +48,7 @@ const LoginController = async (req, res) => {
 
             } else {
                 const token = tokenGenarate(user._id)
-                res.cookie("token", token)
+                res.cookie("token", token,)
                 delete user._doc.password
                 res.json({ user, message: "User Logged in successfully completed" })
             }
@@ -63,7 +63,7 @@ const LoginController = async (req, res) => {
 
 const LogoutController = (req, res) => {
     try {
-        res.clearCookie("token")
+        res.clearCookie("token",)
         res.json({ message: "Logout Successfully" })
     } catch (error) {
         res.json({ message: "Something Went Wrong" })
@@ -106,13 +106,16 @@ const getAllUsers = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
+
+    const userId = req.params.userId
     try {
-        await UserModel.findByIdAndDelete(req.params.id);
+        await UserModel.findByIdAndDelete(req.params.userId);
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting user' });
     }
 };
+
 
 
 

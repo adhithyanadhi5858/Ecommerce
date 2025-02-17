@@ -92,7 +92,7 @@ const getAllOrders = async (req, res) => {
       .populate("userId")
       .populate('productId');
 
-    res.json({orders});
+    res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

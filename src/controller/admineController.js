@@ -82,7 +82,20 @@ const getAdmineProfile = async (req, res) => {
     });
 };
 
+const checkAdmine = async (req, res) => {
 
+    const admine = req.user;
+
+    try{
+
+       res.json({admine,message:"Admine Autharized"})
+
+    }catch(error){
+
+        res.json({message:error.message || "Internal Server Error"})
+
+    }
+};
 
 
 // Admin Dashboard Controller
@@ -120,4 +133,4 @@ const getAdminDashboard = async (req, res) => {
     }
 };
 
-module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile,getAdminDashboard}
+module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile,getAdminDashboard,checkAdmine}

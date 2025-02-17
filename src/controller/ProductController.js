@@ -4,7 +4,7 @@ const ProductModel = require("../moddels/ProductModel")
 
 
 const getAllProducts = async(req,res)=>{
-   const limit=10
+   const limit=20
    const page =req.query.page || 1
    const skip = (page-1)*limit
    const searchVal = req.query.search || ""
@@ -15,12 +15,19 @@ const getAllProducts = async(req,res)=>{
     res.json(allProducts)
 }
 
+const admineAllProducts = async(req,res)=>{
+     
+     const allProducts = await ProductModel.find()
+
+     res.json(allProducts)
+ }
+
 
 const createProducts = async(req,res)=>{
 
     const {title,price,description,quantity} = req.body
 
-    console.log("image===",req.file)
+    
 
     try{
 
@@ -28,17 +35,19 @@ const createProducts = async(req,res)=>{
             return res.status(400),json({message:"all fields are required"})
         }  
 
-            const cloudinaryResponse = cloudinaryInstance.uploader.upload(req.file.path)
+            const cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path)
 
-            console.log("cldRes====",cloudinaryResponse)    
+                
 
         const newProduct = await ProductModel({title,description,price,image:(await cloudinaryResponse).url,quantity})
         await newProduct.save()
 
+        
+
         res.json({message:"Product Created",newProduct})
         
     }catch(error){
-         res.json({message:error.message || "something Went Wrong"})
+         res.json({message:error.message || "internal server error"})
     }
 }
 
@@ -96,7 +105,7 @@ const deleteProducts = async(req,res)=>{
     try{
 
         const productId = req.params.id
-        console.log(productId)
+       
       
 
        await ProductModel.findByIdAndDelete(productId)
@@ -110,4 +119,4 @@ const deleteProducts = async(req,res)=>{
 }
 
 
-module.exports = {getAllProducts,createProducts,getProductById,updateProducts,deleteProducts}
+module.exports = {getAllProducts,createProducts,getProductById,updateProducts,deleteProducts,admineAllProducts}

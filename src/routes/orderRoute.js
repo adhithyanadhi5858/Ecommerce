@@ -8,7 +8,7 @@ const { admineOnly } = require('../middleware/admineOnlyMiddleware');
 
 router.post('/create-order', authMiddleWare, createOrder);
 
-router.put('/update/:id', authMiddleWare, admineOnly, updateOrderStatus);
+router.put('/update/:id', admineOnly, updateOrderStatus);
 
 router.get('/user-orders', authMiddleWare, getUserOrders);
 

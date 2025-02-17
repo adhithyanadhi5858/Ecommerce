@@ -24,12 +24,13 @@ mongoose.connect(db_link)
 })
 
 app.use(cors({
-    origin: ["https://vibbora.vercel.app/","http://localhost:5173/", 'https://vibbora.vercel.app'],
+    origin: ["http://localhost:5173", 'https://vibbora.vercel.app'],
     methods:["GET","PUT","DELETE","POST","OPTIONS"],
     credentials:true
   }))
 app.use(express.json())
 app.use(cookieParser())
+
 
 app.use("/api/products", productRouter)
 app.use("/api/user", userRouter)
