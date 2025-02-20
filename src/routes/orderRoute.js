@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const {createOrder, updateOrderStatus,getUserOrders, getAllOrders, getOrderById,} = require("../controller/orderController");
 const { authMiddleWare } = require('../middleware/authenticationMiddleware')
 const { admineOnly } = require('../middleware/admineOnlyMiddleware');

@@ -8,11 +8,15 @@ const addToWishList = (req,res)=>{
 
         const productId = req.body.productId
 
+        if(!userId || !productId){
+            return res.json({message:"UserId or ProductId is missing"})
+        }
+
         const product = WishlistModel.create({
            productId : productId,
            UserId : userId
         })
-        res.json({message:"Wish-List Added Successfully"})
+        res.json({message:" Added To Whishlist"})
 
     }catch(error){
 
@@ -26,9 +30,11 @@ const getWishList = async (req,res)=>{
     try{
 
         const userId = req.user._id
+        
 
         const WhishList = await  WishlistModel.find({UserId:userId}).populate('UserId').populate('productId')
-
+         
+         
         res.json(WhishList)
 
     }catch(error){

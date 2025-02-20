@@ -55,9 +55,11 @@ const createProducts = async(req,res)=>{
 const getProductById = async (req,res)=>{
 
     const productId= req.params.productId
+   
 
     try{
         const product = await ProductModel.findById(productId)
+        
         if(product){
             res.json({product})
         }else{
@@ -75,27 +77,52 @@ const getProductById = async (req,res)=>{
 
 const updateProducts = async (req,res)=>{
    
-    try{
-
-        const productId = req.params.id
-
-        let product = await ProductModel.findOne({_id:productId})
-
-        if(!product){
-            return res.json({message:"Products Not found"})
+    try {
+        
+        const { title, price, description, quantity } = req.body;
+        let product = await ProductModel.findById(req.params.productId);
+    
+        if (!product) {
+          return res.status(404).json({ message: "Product not found" });
         }
-
-        const updates = req.body
-
-        product = await ProductModel.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
-
-        res.json({message:"Update Product Successfullly",product})
-
-    }catch(error){
-
-        res.json({message:error.message || "somewhting went wrong"})
-
-    }   
+    
+        let imageUrl = product.image; // Keep existing image if no new upload
+    
+        // Upload new image if provided
+        if (req.file) {
+          const result = await cloudinary.uploader.upload_stream(
+            { folder: "products" },
+            async (error, result) => {
+              if (error) {
+                console.error("Cloudinary Upload Error:", error);
+                return res.status(500).json({ message: "Image upload failed" });
+              }
+              imageUrl = result.secure_url;
+    
+              // Update product
+              product = await ProductModel.findByIdAndUpdate(
+                req.params.id,
+                { title, price, description, stock, image: imageUrl },
+                { new: true }
+              );
+    
+              res.json({ message: "Product updated successfully", product });
+            }
+          ).end(req.file.buffer);
+        } else {
+          // If no new image, update other fields
+         const product = await ProductModel.findByIdAndUpdate(
+            req.params.productId,
+            { title, price, description, quantity },
+            { new: true }
+          );
+    
+          res.json({ message: "Product updated successfully", product });
+        }
+      } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ message: "Server error" });
+      }
 }
 
 

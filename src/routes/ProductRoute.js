@@ -18,7 +18,7 @@ router.get("/product-details/:productId",getProductById)
 
 router.delete("/delete/:id",admineOnly,deleteProducts)
 
-router.put("/update/:id",admineOnly,updateProducts)
+router.put("/update/:productId",admineOnly,upload.single("image"),updateProducts)
 
 
 

@@ -47,11 +47,13 @@ const LoginController = async (req, res) => {
     }
 
     try {
-         checkData =  await bcrypt.compare(req.body.password, user.password, function (err, result) {
+        const checkData =  bcrypt.compare(req.body.password, user.password, function (err, result) {
             if (!result) {
                 return res.status(400).json({ message: "Invalid credentials" });
 
             } else {
+                console.log("user Login",user);
+                
                 const token = tokenGenarate(user._id)
                 res.cookie("token", token,{
                     sameSite: NODE_ENV === "production" ? "None" : "Lax",
@@ -130,8 +132,36 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const editProfile = async (req, res) => {
+    const { name, email, phone } = req.body;
+    let image = req.body.image; // If the user doesn't upload an image, we'll use the old one.
+  
+    if (req.file) {
+      image = req.file.path; // Save the image path if a new image was uploaded
+    }
+  
+    try {
+
+      const user = await UserModel.findById(req.user._id);
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      user.name = name || user.name;
+      user.email = email || user.email;
+      user.image = image || user.image;
+  
+      await user.save();
+      res.json(user); // Send the updated user data back
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to update profile' });
+    }
+  };
 
 
 
 
-module.exports = { RegisterController, LoginController, LogoutController, getUserProfile, checkUser ,getAllUsers,deleteUser}
+
+module.exports = { RegisterController, LoginController, LogoutController, getUserProfile, checkUser ,getAllUsers,deleteUser,editProfile}

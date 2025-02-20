@@ -5,6 +5,7 @@ const tokenGenarate = require("../../token");
 const UserModel = require("../moddels/UserModel.js");
 const ProductModel = require("../moddels/ProductModel.js");
 const OrderModel = require("../moddels/orderModel.js");
+const NODE_ENV = process.env.NODE_ENV;
 
 const admineRegController = async (req,res)=>{
 
@@ -50,20 +51,20 @@ const admineLoginController= async(req,res)=>{
 
             if(result){
             
-             const regToken = tokenGenarate(user._id)
+             const regToken = tokenGenarate(user._id,"admine")
              res.cookie("token",regToken,{
                 sameSite: NODE_ENV === "production" ? "None" : "Lax",
                 secure: NODE_ENV === "production",
                 httpOnly: NODE_ENV === "production",
             })
-             res.json({message:"Admine Logged in successfully completed"})
+            return res.json({message:"Admine Logged in successfully completed"})
              
             }else{
-                res.json({message:"Password Not Match"})
+               return res.json({message:"Password Not Match"})
             }
         });
     }catch(err){
-        res.status(401).json({message:"User not found"})
+       return res.status(401).json({message:"User not found"})
     }
     
 
@@ -87,7 +88,7 @@ const getAdmineProfile = async (req, res) => {
 
     const admine = req.user;
     
-    res.status(200).json({
+  return  res.status(200).json({
         id: admine._id,
         name: admine.name,
         email: admine.email,

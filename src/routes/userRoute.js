@@ -1,7 +1,8 @@
 const mongoose = require("mongoose")
 const express = require("express")
 const router = express.Router()
-const {RegisterController,LoginController,LogoutController,getUserProfile,checkUser, getAllUsers, deleteUser} = require("../controller/userController")
+const upload = require("../middleware/multer.js")
+const {RegisterController,LoginController,LogoutController,getUserProfile,checkUser, getAllUsers, deleteUser, editProfile} = require("../controller/userController")
 const { admineOnly } = require("../middleware/admineOnlyMiddleware")
 const { authMiddleWare } = require("../middleware/authenticationMiddleware")
 
@@ -13,6 +14,8 @@ router.post("/login",LoginController)
 router.get('/logout',LogoutController)
 
 router.get('/profile', authMiddleWare, getUserProfile);
+
+router.put('/profile',authMiddleWare, upload.single('image'),editProfile)
 
 router.get("/check",authMiddleWare,checkUser)
 

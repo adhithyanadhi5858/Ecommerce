@@ -24,23 +24,25 @@ const createOrder = async (req, res) => {
 
 }
 
-
 const getOrderById = async (req, res) => {
-
   try {
-    const order = await OrderModel.findById(req.user._id).populate("userId").populate("productId"); 
+    // Query the orders for the logged-in user (using userId)
+    const orders = await OrderModel.find({ userId: req.user._id })
+      .populate('userId') // Populating user details (optional, depending on what you need)
+      .populate('productId'); // Populating product details (optional, depending on what you need)
 
-    if (!order) {
-      return res.status(404).json({ message: 'Orders not found' });
+  
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this user' });
     }
 
-    res.json({order});
-
+    res.json({ orders,message:"Fetched orders" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
-}
-
+};
 
 
 
@@ -88,9 +90,7 @@ const getUserOrders = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const orders = await OrderModel.find()
-      .populate("userId")
-      .populate('productId');
-
+      .populate('productId',"title price image _id")
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });

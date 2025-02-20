@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
      email : {type:String , unique:true , required:true},
      password : {type:String,required:true,minLen:8},
      role : {type:String , default:'User'},
-     image : {type:String , default:"https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg"}
+     image : {type:String , default:"https://as1.ftcdn.net/v2/jpg/05/79/55/26/1000_F_579552668_sZD51Sjmi89GhGqyF27pZcrqyi7cEYBH.jpg"}
 
   });
 

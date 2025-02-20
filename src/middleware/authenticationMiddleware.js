@@ -8,10 +8,16 @@ const authMiddleWare = async (req,res,next)=>{
         try{
 
             const {token } = req.cookies;
+
+            if(!token){
+              return   res.status(401).json({message:"User Not Authenticated"})
+            }
             
             var decoded = jwt.verify(token,encryptKey)
-            const User = await UserModel.findOne({id:decoded._id})
-            req.user = User           
+            const User = await UserModel.findById(decoded.id)
+            console.log(User)
+            req.user = User      
+                 
             next()
         }catch(error){
             console.log(error)

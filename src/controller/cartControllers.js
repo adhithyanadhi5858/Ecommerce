@@ -12,9 +12,8 @@ const addToCart = async (req,res)=>{
             productId :productId,
             userId:userId
         })
-
         const cartItemPopulated = await CartModel.findById(cartItem).populate("productId").populate("userId")
-        res.json(cartItemPopulated)
+        res.json({cartItemPopulated,message:"Added To Cart"})
 
     }catch(error){
         res.json({message:error.message || "something went wrong"})
@@ -31,19 +30,25 @@ const getAllCartItems = async (req,res)=>{
     res.json(cartItem)
 }
 
-const removeCartItems = async (req,res)=>{
-
-   try{
-    const productId = req.body.productId
-
-    const product = await CartModel.findByIdAndDelete(productId)
-
-
-    res.json({message:"Deleted Cart Item"})
-
-   }catch(error){
-      res.status(404).json({message:error.message || "Server Error"})
-   }
-}
+const removeCartItems = async (req, res) => {
+    try {
+      const { cartId } = req.body; // Extract cartId from body
+  
+      if (!cartId) {
+        return res.status(400).json({ message: "Cart Item Not Found" });
+      }
+  
+      const deletedProduct = await CartModel.findByIdAndDelete(cartId);
+  
+      if (!deletedProduct) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+  
+      res.json({ message: "Deleted Cart Item Successfully" });
+  
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Server Error" });
+    }
+  };
 
 module.exports = {getAllCartItems,addToCart,removeCartItems}
