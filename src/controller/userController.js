@@ -51,9 +51,7 @@ const LoginController = async (req, res) => {
             if (!result) {
                 return res.status(400).json({ message: "Invalid credentials" });
 
-            } else {
-                console.log("user Login",user);
-                
+            } else {                
                 const token = tokenGenarate(user._id)
                 res.cookie("token", token,{
                     sameSite: NODE_ENV === "production" ? "None" : "Lax",

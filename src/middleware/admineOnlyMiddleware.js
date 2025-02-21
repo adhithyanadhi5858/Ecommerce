@@ -8,9 +8,8 @@ const admineOnly = async (req, res, next) => {
         const { token } = req.cookies;
 
         var decoded = jwt.verify(token, encryptKey)
-        const admine = await AdmineModel.findById(decoded.id)
-       
-        if (admine.role == "admine") {
+        const admine = await AdmineModel.findById(decoded.id)       
+        if (admine) {
             req.user = admine
             next()
         }else{

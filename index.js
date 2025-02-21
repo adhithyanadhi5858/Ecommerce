@@ -10,6 +10,7 @@ const cartRouter = require("./src/routes/cartRoute")
 const wishListRouter = require("./src/routes/wishListRoute")
 const orderRouter = require("./src/routes/orderRoute")
 const reviewRouter = require("./src/routes/reviewRoute")
+const paymentRouter = require("./src/routes/paymentRoute")
 const app = express()
 port = process.env.PORT
 const db_link = process.env.DB_CONNECT_LINK
@@ -24,7 +25,7 @@ mongoose.connect(db_link)
 })
 
 app.use(cors({
-    origin: ["http://localhost:5173", 'https://vibbora.vercel.app'],
+    origin: ["http://localhost:5176", 'https://vibbora.vercel.app'],
     methods:["GET","PUT","DELETE","POST","OPTIONS"],
     credentials:true
   }))
@@ -39,6 +40,7 @@ app.use("/api/cart", cartRouter)
 app.use("/api/whish-list", wishListRouter )
 app.use("/api/order",orderRouter)
 app.use("/api/review",reviewRouter)
+app.use("/api/payment",paymentRouter)
 
 app.listen(port,()=>{
     console.log("Running in port :",port,)
