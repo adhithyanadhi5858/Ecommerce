@@ -15,9 +15,9 @@ const authMiddleWare = async (req,res,next)=>{
             
             var decoded = jwt.verify(token,encryptKey)
             const User = await UserModel.findById(decoded.id)
-            req.user = User      
-                 
+            req.user = User   
             next()
+
         }catch(error){
             console.log(error)
             res.status(401).json({message:"Invalid Token"})

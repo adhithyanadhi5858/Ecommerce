@@ -38,33 +38,32 @@ const admineRegController = async (req,res)=>{
 const admineLoginController= async(req,res)=>{
 
     const userData = req.body
-
     const user =  await AdmineModel.findOne({email:userData.email})
-     
     
     if(!user){
-        return res.json(400).json({message:"User Does Not Exist"})
+        return res.json(401).json({message:"Admine Does Not Exist"})
     }
    
     try{
         bcrypt.compare(req.body.password,user.password, function(err, result) {
 
-            if(result){
+            if(!result){
             
-             const regToken = tokenGenarate(user._id,"admine")
-             res.cookie("token",regToken,{
-                sameSite: NODE_ENV === "production" ? "None" : "Lax",
-                secure: NODE_ENV === "production",
-                httpOnly: NODE_ENV === "production",
-            })
-            return res.json({message:"Admine Logged in successfully completed"})
+                return res.json({message:"Password Not Match"})
              
             }else{
-               return res.json({message:"Password Not Match"})
+
+               const regToken = tokenGenarate(user._id,"admine")
+               res.cookie("token",regToken,{
+                  sameSite: NODE_ENV === "production" ? "None" : "Lax",
+                  secure: NODE_ENV === "production",
+                  httpOnly: NODE_ENV === "production",
+              })
+              return res.json({message:"Admine Logged in successfully completed"})
             }
         });
-    }catch(err){
-       return res.status(401).json({message:"User not found"})
+    }catch(error){
+       return res.status(401).json({message:error.message})
     }
     
 
@@ -121,12 +120,14 @@ const getAdminDashboard = async (req, res) => {
         
         // Aggregate order stats (Total Sales, Pending Orders, Delivered Orders)
         const totalSales = await OrderModel.aggregate([
-            { $match: { status: "Delivered" } }, // Only count delivered orders
+            { $match: { orderStatus: "Delivered" } }, // Only count delivered orders
             { $group: { _id: null, total: { $sum: "$totalPrice" } } }
         ]);
 
-        const pendingOrders = await OrderModel.countDocuments({ status: "Pending" });
-        const deliveredOrders = await OrderModel.countDocuments({ status: "Delivered" });
+
+
+        const pendingOrders = await OrderModel.countDocuments({ orderStatus: "shipped" });
+        const deliveredOrders = await OrderModel.countDocuments({ orderStatus: "Delivered" });
 
         // Response
         res.status(200).json({
@@ -135,7 +136,7 @@ const getAdminDashboard = async (req, res) => {
                 totalUsers,
                 totalProducts,
                 totalOrders,
-                totalSales: totalSales[0]?.total || 0,
+                totalSales,
                 pendingOrders,
                 deliveredOrders,
             },

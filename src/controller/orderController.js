@@ -21,6 +21,7 @@ const createOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+  
 
 }
 
@@ -90,7 +91,6 @@ const getUserOrders = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const orders = await OrderModel.find()
-      .populate('productId',"title price image _id")
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: error.message });

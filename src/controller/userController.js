@@ -8,12 +8,11 @@ const NODE_ENV = process.env.NODE_ENV;
 const RegisterController = async (req, res) => {
 
     const userData = req.body
-    console.log(userData)
 
     const userExist = await UserModel.findOne({ email: userData.email })
 
     if (userExist) {
-        return res.status(400).json({ message: "User Already Exist" })
+        return res.status(401).json({ message: "User Already Exist" })
     }
 
     bcrypt.hash(userData.password, saltRound, async function (err, hash) {
@@ -40,10 +39,8 @@ const LoginController = async (req, res) => {
 
     const user = await UserModel.findOne({ email: req.body.email })
 
-    
-
     if (!user) {
-       return res.status(400).json({ message: "User Does Not Exist" })
+       return res.json({ message: "User Does Not Exist" })
     }
 
     try {

@@ -1,3 +1,4 @@
+const CartModel = require('../moddels/cartModel');
 const OrderModel = require('../moddels/orderModel');
 const Stripe = require('stripe')
 const client_domain = process.env.CLIENT_DOMAIN;
@@ -10,20 +11,17 @@ const payment = async (req, res) => {
         const userId = req.user.id;
 
         const { products } = req.body;
-        console.log(products)
         const lineItems = products.map((product) => ({
             price_data: {
-                currency: "inr",
+                currency: "usd",
                 product_data: {
                     name: product?.title,
                     images: [product?.image],
                 },
                 unit_amount: Math.round(product?.price * 100),
             },
-            quantity: 1,
+            quantity: product.quantity,
         }));
-
-
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -35,7 +33,6 @@ const payment = async (req, res) => {
 
 
         const newOrder = new OrderModel({ userId,productId:products.map(product => {
-            console.log("Product Object:", product); // Debugging
             return product?.id || product?._id; // Handling different ID structures
         }),
         orderStatus:"shipped",
@@ -43,6 +40,8 @@ const payment = async (req, res) => {
         await newOrder.save()
 
         res.json({ message: "Successfull", success: true, sessionId: session.id });
+
+       const clearCart = await CartModel.deleteMany({ userId: userId });
 
     } catch (error) {
         return res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });

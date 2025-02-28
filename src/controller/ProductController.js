@@ -75,55 +75,45 @@ const getProductById = async (req,res)=>{
 
 
 
-const updateProducts = async (req,res)=>{
-   
-    try {
+const updateProducts = async (req, res) => {
+  try {
+    const { title, price, description, quantity } = req.body;
+
+    let product = await ProductModel.findById(req.params.productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    let imageUrl = product.image; // Keep existing image if no new upload
+
+    // If a new image is provided, upload it to Cloudinary
+    if (req.file) {
+      try {
+        const cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path, {
+          folder: "products",
+        });
+
         
-        const { title, price, description, quantity } = req.body;
-        let product = await ProductModel.findById(req.params.productId);
-    
-        if (!product) {
-          return res.status(404).json({ message: "Product not found" });
-        }
-    
-        let imageUrl = product.image; // Keep existing image if no new upload
-    
-        // Upload new image if provided
-        if (req.file) {
-          const result = await cloudinary.uploader.upload_stream(
-            { folder: "products" },
-            async (error, result) => {
-              if (error) {
-                console.error("Cloudinary Upload Error:", error);
-                return res.status(500).json({ message: "Image upload failed" });
-              }
-              imageUrl = result.secure_url;
-    
-              // Update product
-              product = await ProductModel.findByIdAndUpdate(
-                req.params.id,
-                { title, price, description, stock, image: imageUrl },
-                { new: true }
-              );
-    
-              res.json({ message: "Product updated successfully", product });
-            }
-          ).end(req.file.buffer);
-        } else {
-          // If no new image, update other fields
-         const product = await ProductModel.findByIdAndUpdate(
-            req.params.productId,
-            { title, price, description, quantity },
-            { new: true }
-          );
-    
-          res.json({ message: "Product updated successfully", product });
-        }
+        imageUrl = cloudinaryResponse.secure_url;
       } catch (error) {
-        console.error("Error updating product:", error);
-        res.status(500).json({ message: "Server error" });
+        console.error("Cloudinary Upload Error:", error);
+        return res.status(500).json({ message: "Image upload failed" });
       }
-}
+    }
+
+    // Update product details
+    const updatedProduct = await ProductModel.findByIdAndUpdate(
+      req.params.productId,
+      { title, price, description, quantity, image: imageUrl },
+      { new: true }
+    );
+
+    res.json({ message: "Product updated successfully", product: updatedProduct });
+  } catch (error) {
+    console.error("❌ Error updating product:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 
