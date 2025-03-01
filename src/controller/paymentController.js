@@ -1,6 +1,7 @@
 const CartModel = require('../moddels/cartModel');
 const OrderModel = require('../moddels/orderModel');
-const Stripe = require('stripe')
+const Stripe = require('stripe');
+const ProductModel = require('../moddels/ProductModel');
 const client_domain = process.env.CLIENT_DOMAIN;
 const stripe = new Stripe(process.env.Stripe_Private_Api_Key)
 
@@ -11,6 +12,7 @@ const payment = async (req, res) => {
         const userId = req.user.id;
 
         const { products } = req.body;
+        
         const lineItems = products.map((product) => ({
             price_data: {
                 currency: "usd",
@@ -31,11 +33,24 @@ const payment = async (req, res) => {
             cancel_url: `${client_domain}/user/payment/cancel`,
         });
 
+        let total =0
+
+        for (let item of products) {
+           
+            const product = await ProductModel.findById(item.id);
+            
+            if (!product) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+            total += product.price * item.quantity;
+        }
+
 
         const newOrder = new OrderModel({ userId,productId:products.map(product => {
             return product?.id || product?._id; // Handling different ID structures
         }),
         orderStatus:"shipped",
+        total,
         sessionId: session?.id });
         await newOrder.save()
 

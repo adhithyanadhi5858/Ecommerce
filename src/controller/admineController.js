@@ -6,6 +6,7 @@ const UserModel = require("../moddels/UserModel.js");
 const ProductModel = require("../moddels/ProductModel.js");
 const OrderModel = require("../moddels/orderModel.js");
 const NODE_ENV = process.env.NODE_ENV;
+const cloudinaryInstance = require("../../config/cloudnary")
 
 const admineRegController = async (req,res)=>{
 
@@ -91,6 +92,7 @@ const getAdmineProfile = async (req, res) => {
         id: admine._id,
         name: admine.name,
         email: admine.email,
+        image: admine.image
     });
 };
 
@@ -118,13 +120,13 @@ const getAdminDashboard = async (req, res) => {
         const totalProducts = await ProductModel.countDocuments();
         const totalOrders = await OrderModel.countDocuments();
         
+        
         // Aggregate order stats (Total Sales, Pending Orders, Delivered Orders)
         const totalSales = await OrderModel.aggregate([
             { $match: { orderStatus: "Delivered" } }, // Only count delivered orders
-            { $group: { _id: null, total: { $sum: "$totalPrice" } } }
+            { $group: { _id: null, total: { $sum: "$total" } } }
+           
         ]);
-
-
 
         const pendingOrders = await OrderModel.countDocuments({ orderStatus: "shipped" });
         const deliveredOrders = await OrderModel.countDocuments({ orderStatus: "Delivered" });
@@ -145,6 +147,37 @@ const getAdminDashboard = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
+
+
+
 };
 
-module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile,getAdminDashboard,checkAdmine}
+
+const updateProfile = async (req, res) => {
+ 
+    const { name, email } = req.body;
+
+  try {
+    const admin = await AdmineModel.findById(req.user.id);
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    let imageUrl = admin.image;
+
+    if (req.file) {
+      const cloudinaryResponse = await cloudinaryInstance.uploader.upload(req.file.path);
+      imageUrl = cloudinaryResponse.secure_url;
+    }
+
+    admin.name = name || admin.name;
+    admin.email = email || admin.email;
+    admin.image = imageUrl;
+
+    await admin.save();
+
+    res.json({ message: "Profile updated successfully", updateAdmine: admin });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
+module.exports = {admineLoginController,admineRegController,admineLogoutController,getAdmineProfile,getAdminDashboard,checkAdmine,updateProfile}

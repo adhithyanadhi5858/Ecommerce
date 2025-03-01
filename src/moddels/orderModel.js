@@ -7,6 +7,7 @@ const OrderSchema = new mongoose.Schema({
     userId :{type:mongoose.Schema.Types.ObjectId ,ref:"User"},
     isPaid : Boolean,
     orderStatus : {type:String},  
+    total:{type:Number}
   },
   { timestamps: true } 
 );
