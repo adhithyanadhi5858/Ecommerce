@@ -42,8 +42,9 @@ const admineLoginController= async(req,res)=>{
     const user =  await AdmineModel.findOne({email:userData.email})
     
     if(!user){
-        return res.json(401).json({message:"Admine Does Not Exist"})
+        return res.status(401).json({message:"Admine Does Not Exist"})
     }
+
    
     try{
         bcrypt.compare(req.body.password,user.password, function(err, result) {
@@ -60,8 +61,9 @@ const admineLoginController= async(req,res)=>{
                   secure: NODE_ENV === "production",
                   httpOnly: NODE_ENV === "production",
               })
-              return res.json({message:"Admine Logged in successfully completed"})
+              return res.json({user,message:"Admine Logged in successfully completed"})
             }
+            
         });
     }catch(error){
        return res.status(401).json({message:error.message})

@@ -55,6 +55,7 @@ const LoginController = async (req, res) => {
                     secure: NODE_ENV === "production",
                     httpOnly: NODE_ENV === "production",
                 })
+
                 delete user._doc.password
                 res.json({ user, message: "User Logged in successfully completed" })
             }
@@ -62,8 +63,6 @@ const LoginController = async (req, res) => {
     } catch (err) {
         res.status(401).json({ message: "User not found" })
     }
-
-
 }
 
 
@@ -80,32 +79,28 @@ const LogoutController = (req, res) => {
     }
 }
 
+
 const getUserProfile = async (req, res) => {
-
     const user = req.user;
-
     res.status(200).json({
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         image:user.image
     });
 };
 
+
+
 const checkUser = async (req, res) => {
-
     const user = req.user;
-
     try{
-
        res.json({user,message:"User Autharized"})
-
     }catch(error){
-
         res.json({message:error.message || "Internal Server Error"})
-
     }
 };
+
 
 const getAllUsers = async (req, res) => {
     try {
@@ -116,8 +111,8 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-const deleteUser = async (req, res) => {
 
+const deleteUser = async (req, res) => {
     const userId = req.params.userId
     try {
         await UserModel.findByIdAndDelete(req.params.userId);
@@ -127,26 +122,23 @@ const deleteUser = async (req, res) => {
     }
 };
 
+
+
 const editProfile = async (req, res) => {
-    const { name, email, phone } = req.body;
+    const { name, email} = req.body;
     let image = req.body.image; // If the user doesn't upload an image, we'll use the old one.
   
     if (req.file) {
       image = req.file.path; // Save the image path if a new image was uploaded
     }
-  
     try {
-
       const user = await UserModel.findById(req.user._id);
-  
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-  
       user.name = name || user.name;
       user.email = email || user.email;
       user.image = image || user.image;
-  
       await user.save();
       res.json(user); // Send the updated user data back
     } catch (error) {
