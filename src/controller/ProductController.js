@@ -110,11 +110,10 @@ const updateProducts = async (req, res) => {
 
     res.json({ message: "Product updated successfully", product: updatedProduct });
   } catch (error) {
-    console.error("❌ Error updating product:", error);
+    console.error("Error updating product:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 const deleteProducts = async(req,res)=>{
@@ -122,8 +121,6 @@ const deleteProducts = async(req,res)=>{
     try{
 
         const productId = req.params.id
-       
-      
 
        await ProductModel.findByIdAndDelete(productId)
 
@@ -134,6 +131,5 @@ const deleteProducts = async(req,res)=>{
         res.json({message:error.message || "Something went wrong"})
     }
 }
-
 
 module.exports = {getAllProducts,createProducts,getProductById,updateProducts,deleteProducts,admineAllProducts}
